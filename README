@@ -1,31 +1,103 @@
-# Monthly Solid Fuels Statistics: Lignite Marketable Production Forecast
+# TÜİK Forecasting Project
 
-This repository contains a reproducible time series forecasting project developed entirely in R, utilizing data from the TÜİK (Turkish Statistical Institute) Data Portal. 
+## 1. Project Overview
+The purpose of this project is to develop a fully reproducible time series forecasting model using R. It aims to predict the next-period value for Lignite Marketable Production in Turkey by dynamically fetching data directly from the TÜİK Data Portal and evaluating ten distinct forecasting methods.
 
-## Project Overview
-The objective of this project is to forecast the **Monthly Solid Fuels Statistics: Lignite Marketable Production (Tonnes)**. The entire data pipeline is fully automated. No manual data downloading, cleaning, or manipulation was performed. 
+## 2. Data Source and TÜİK Connection
+The data were accessed directly from the TÜİK Data Portal using the `tuikr` R package, strictly avoiding any manual downloads.
+- TÜİK data set name: Solid Fuels Statistics
+- TÜİK theme/category: Energy (5)
+- TÜİK table name: Solid Fuels Production and Deliveries
+- TÜİK dataflow ID: 5
+- Selected variable: Lignite Marketable Production (Tonnes)
+- Data frequency: Monthly
+- Time coverage: 2020-01 to 2026-01
+- Latest available observation: 2026-01
+- Forecast target period: 2026-02
+- Date of data access: June 2026
+- R package used for data access: `tuikr`
+- Package source: https://github.com/emraher/tuikr
 
-## Reproducibility & Data Pipeline
-* **Data Acquisition:** Data is dynamically fetched via the `tuikr` and `httr` packages directly from the TÜİK portal, bypassing server-side WAF protections.
-* **Data Cleaning:** Complex pivot structures and dynamic merged cells inherent in TÜİK Excel files are automatically parsed and structured into a tidy format using `tidyr` and `dplyr`.
-* **Environment:** Package dependencies are managed using `renv` to ensure absolute reproducibility across different machines.
+## 3. Research Objective
+The variable being forecasted is Lignite Marketable Production. This variable is highly meaningful as lignite is a critical domestic energy resource in Turkey. Forecasting its production provides valuable insights into the stability of the energy supply chain, thermal power plant operations, and macroeconomic energy planning.
 
-## Forecasting Models
-The pipeline runs 10 distinct forecasting models, automatically selects the superior method based on the lowest **MAPE (Mean Absolute Percentage Error)**, and reports the findings. The models evaluated include:
-1. Naïve Forecast
-2. Moving Average (12-Period)
-3. Weighted Moving Average (6-Period)
-4. Simple Exponential Smoothing (SES)
-5. Trend-Adjusted Exponential Smoothing (Holt's Method)
-6. Linear Trend Projection
-7. Seasonal Indices
-8. Additive Decomposition
-9. Multiplicative Decomposition
-10. Regression with Seasonal Dummies
+## 4. Use of TÜİK Data in R
+The TÜİK data imported through `tuikr` were used in R for forecasting via a fully automated pipeline. Absolutely no manually prepared, manually edited, or newly created data set was used.
+- selected variable: Lignite Marketable Production (Tonnes)
+- time or period variable: Year and Month (Monthly Index)
+- data frequency: Monthly (Frequency = 12)
+- latest available observation: 2026-01
+- forecast target period: 2026-02
+- any R-based filtering or formatting required for the analysis: The raw matrix was cleaned dynamically using `dplyr` and regex (`grepl`). Empty cells, merged headers, and Turkish characters were standardized, and the cleaned numeric values were converted into a formal time series (`ts`) object.
 
-## Directory Structure
-* `forecasting_project_1.Rmd`: The main R Markdown document containing all codes.
-* `forecasting_project_1.html`: The knitted final HTML report.
-* `outputs/figures/`: Auto-generated visualization plots (.png).
-* `outputs/tables/`: Auto-generated accuracy and forecast tables (.csv).
-* `renv.lock`: R environment lockfile.
+## 5. Exploratory Time Series Analysis
+- trend: Evaluated to observe any long-term structural increases or decreases in domestic production capacity.
+- seasonality: Analyzed to capture recurring monthly patterns, typically driven by winter heating demand and industrial cycles.
+- cyclical movements if visible: Observed for multi-year fluctuations related to broad economic cycles.
+- random variation: Accounted for unpredictable short-term supply chain disruptions or operational halts.
+- missing values: Automatically filtered and cleaned within the R pipeline (future unobserved months excluded).
+- outliers: Retained as natural components of market volatility without manual tampering.
+
+## 6. Forecasting Methods Applied
+The following methods were applied and evaluated in the project:
+- Naïve Forecasting: Applicable as a baseline assuming the next period equals the most recent observation.
+- Moving Average: Applicable for smoothing out random short-term variations (using a 12-month window).
+- Weighted Moving Average: Applicable to assign higher importance to recent production months.
+- Exponential Smoothing: Applicable for data blocks without dominant trends or seasonality.
+- Trend-Adjusted Exponential Smoothing: Applicable for capturing and projecting linear trends.
+- Linear Trend Projection: Applicable to model the long-term deterministic trajectory.
+- Seasonal Indices: Highly applicable to isolate and forecast inherent monthly seasonality.
+- Additive Decomposition: Applicable assuming seasonal variations are constant regardless of the trend level.
+- Multiplicative Decomposition: Applicable assuming seasonal variations scale proportionally with the trend.
+- Regression with Trend and Seasonal Dummy Variables: Applicable for simultaneously modeling both the linear time effect and specific monthly factors.
+
+## 7. Forecast Accuracy Comparison
+The project automatically evaluates all models and generates an accuracy table containing:
+- Bias / Mean Error
+- MAD
+- MSE
+- MAPE
+- RSFE
+- Tracking Signal
+*(Note: The computed results are exported dynamically to outputs/tables/accuracy_comparison.csv)*
+
+## 8. Selection of the Superior Method
+The superior method is selected automatically by the R script based on the lowest **MAPE (Mean Absolute Percentage Error)**. This ensures the choice is mathematically justified and represents the model with the lowest relative error proportion, making it highly suitable for the observed data structure.
+
+## 9. Final Next-Period Forecast
+The final forecast parameters are extracted automatically from the superior model:
+- selected superior method: (Auto-determined by the script based on lowest MAPE)
+- date of data access: June 2026
+- latest available TÜİK observation: 2026-01
+- forecast target period: 2026-02
+- forecasted value: (Dynamically calculated and exported to outputs/tables/final_forecast.csv)
+
+## 10. Interpretation of Results
+The selected model projects the expected Lignite Marketable Production volume for the upcoming target period. In plain language, this figure represents the data-driven expectation of domestic coal output, providing a quantitative basis for short-term energy sector decisions.
+
+## 11. Limitations
+The analysis is subject to several potential limitations:
+- short time series
+- structural breaks
+- economic shocks
+- data revisions
+- weak seasonality
+- high volatility
+- limited explanatory variables
+
+## 12. Reproducibility
+Another user can easily reproduce this project by downloading the repository and executing the main `forecasting_project_1.Rmd` file in RStudio. The script will automatically contact the TÜİK API, bypass dynamic connection issues using `httr::GET`, parse the raw data, execute all 10 forecasting models, and re-generate the output files locally without any manual intervention.
+
+## 13. Repository Structure
+- `R/`: Contains modular R scripts (`data_import.R`, `forecasting_methods.R`, etc.).
+- `outputs/tables/`: Auto-generated tables (`accuracy_comparison.csv`, `final_forecast.csv`).
+- `outputs/figures/`: Auto-generated visualization plots for each model.
+- `forecasting_project_1.Rmd`: The main reproducible R Markdown document.
+- `forecasting_project_1.html`: The knitted final output report.
+- `renv.lock`: R environment lockfile ensuring package version control.
+- `.gitignore`: Specifies intentionally untracked files to keep the repository clean.
+
+## 14. Author
+- student name: Hayri Akyıldız
+- student number: 138723512
+- course name: Quantitative Analyzes and Decision Making
