@@ -1,0 +1,31 @@
+# Monthly Solid Fuels Statistics: Lignite Marketable Production Forecast
+
+This repository contains a reproducible time series forecasting project developed entirely in R, utilizing data from the TÜİK (Turkish Statistical Institute) Data Portal. 
+
+## Project Overview
+The objective of this project is to forecast the **Monthly Solid Fuels Statistics: Lignite Marketable Production (Tonnes)**. The entire data pipeline is fully automated. No manual data downloading, cleaning, or manipulation was performed. 
+
+## Reproducibility & Data Pipeline
+* **Data Acquisition:** Data is dynamically fetched via the `tuikr` and `httr` packages directly from the TÜİK portal, bypassing server-side WAF protections.
+* **Data Cleaning:** Complex pivot structures and dynamic merged cells inherent in TÜİK Excel files are automatically parsed and structured into a tidy format using `tidyr` and `dplyr`.
+* **Environment:** Package dependencies are managed using `renv` to ensure absolute reproducibility across different machines.
+
+## Forecasting Models
+The pipeline runs 10 distinct forecasting models, automatically selects the superior method based on the lowest **MAPE (Mean Absolute Percentage Error)**, and reports the findings. The models evaluated include:
+1. Naïve Forecast
+2. Moving Average (12-Period)
+3. Weighted Moving Average (6-Period)
+4. Simple Exponential Smoothing (SES)
+5. Trend-Adjusted Exponential Smoothing (Holt's Method)
+6. Linear Trend Projection
+7. Seasonal Indices
+8. Additive Decomposition
+9. Multiplicative Decomposition
+10. Regression with Seasonal Dummies
+
+## Directory Structure
+* `forecasting_project_1.Rmd`: The main R Markdown document containing all codes.
+* `forecasting_project_1.html`: The knitted final HTML report.
+* `outputs/figures/`: Auto-generated visualization plots (.png).
+* `outputs/tables/`: Auto-generated accuracy and forecast tables (.csv).
+* `renv.lock`: R environment lockfile.
